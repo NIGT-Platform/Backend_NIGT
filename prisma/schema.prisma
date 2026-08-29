@@ -1,0 +1,135 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  VEHICLE_OWNER
+  DRIVER
+}
+
+enum AccountStatus {
+  PENDING
+  ACTIVE
+  REJECTED
+  SUSPENDED
+}
+
+enum LicenseType {
+  CLASS_A
+  CLASS_B
+  CLASS_C
+  CLASS_D
+  CLASS_E
+}
+
+// ─────────────────────────────────────────────
+// User Model
+// ─────────────────────────────────────────────
+
+model User {
+  id           String        @id @default(uuid())
+  firstName    String
+  middleName   String?
+  lastName     String
+  email        String        @unique
+  phoneNumber  String        @unique
+  passwordHash String
+  role         Role
+  accountStatus AccountStatus @default(PENDING)
+  emailVerified Boolean      @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // Relations
+  driverProfile        DriverProfile?
+  refreshTokens        RefreshToken[]
+  emailVerifyTokens    EmailVerificationToken[]
+  passwordResetTokens  PasswordResetToken[]
+
+  @@map("users")
+}
+
+// ─────────────────────────────────────────────
+// Driver Profile Model
+// ─────────────────────────────────────────────
+
+model DriverProfile {
+  id                String      @id @default(uuid())
+  userId            String      @unique
+  licenseNumber     String      @unique
+  licenseType       LicenseType
+  licenseExpiryDate DateTime
+  licenseDocumentUrl String
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("driver_profiles")
+}
+
+// ─────────────────────────────────────────────
+// Refresh Token Model
+// ─────────────────────────────────────────────
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+// ─────────────────────────────────────────────
+// Email Verification Token Model
+// ─────────────────────────────────────────────
+
+model EmailVerificationToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("email_verification_tokens")
+}
+
+// ─────────────────────────────────────────────
+// Password Reset Token Model
+// ─────────────────────────────────────────────
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}

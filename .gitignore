@@ -1,6 +1,12 @@
 # Dependencies
 node_modules/
 
+# AI Assistant configs (optional, not needed for project)
+.agents/
+.claude/
+.cursor/
+.devin/
+
 # Build output
 dist/
 
