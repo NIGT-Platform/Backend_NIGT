@@ -50,7 +50,7 @@ export const driverRegisterSchema = z.object({
 });
     
 export const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  emailOrPhone: z.string().min(1, 'Email or phone number is required'),
   password: z.string().min(1, 'Password is required'),
 });
 

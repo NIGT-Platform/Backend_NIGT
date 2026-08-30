@@ -106,7 +106,14 @@ export const registerDriver = async (
 
 
 export const login = async (data: LoginInput) => {
-  const user = await prisma.user.findUnique({ where: { email: data.email } });
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { email: data.emailOrPhone },
+        { phoneNumber: data.emailOrPhone },
+      ],
+    },
+  });
   if (!user) throw new AppError('Invalid email or password', 401);
 
   const isMatch = await comparePassword(data.password, user.passwordHash);
