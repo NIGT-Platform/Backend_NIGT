@@ -13,6 +13,7 @@ tags:
   - name: Email Verification
   - name: Password Management
   - name: Admin User Management
+  - name: Vehicle Management
 
 paths:
   /api/auth/register/vehicle-owner:
@@ -342,6 +343,183 @@ paths:
         '404':
           description: User not found
 
+  /api/vehicles:
+    post:
+      tags: [Vehicle Management]
+      summary: Register a new vehicle
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterVehicleRequest'
+      responses:
+        '201':
+          description: Vehicle registered successfully
+        '400':
+          description: Validation error
+        '409':
+          description: Plate number already exists
+
+  /api/vehicles/my-vehicles:
+    get:
+      tags: [Vehicle Management]
+      summary: Get current owner's vehicles
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+
+  /api/vehicles/{id}:
+    get:
+      tags: [Vehicle Management]
+      summary: Get vehicle details
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+    patch:
+      tags: [Vehicle Management]
+      summary: Update a vehicle
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterVehicleRequest'
+      responses:
+        '200':
+          description: Success
+
+  /api/vehicles/{id}/documents:
+    post:
+      tags: [Vehicle Management]
+      summary: Upload a vehicle document
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                documentType:
+                  type: string
+                  enum: [VEHICLE_REGISTRATION, INSURANCE, INSPECTION]
+                document:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Document uploaded successfully
+
+  /api/admin/vehicles:
+    get:
+      tags: [Vehicle Management]
+      summary: Get all vehicles
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+
+  /api/admin/vehicles/pending:
+    get:
+      tags: [Vehicle Management]
+      summary: Get pending vehicles
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+
+  /api/admin/vehicles/{id}:
+    get:
+      tags: [Vehicle Management]
+      summary: Get vehicle by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+
+  /api/admin/vehicles/{id}/approve:
+    patch:
+      tags: [Vehicle Management]
+      summary: Approve vehicle
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+
+  /api/admin/vehicles/{id}/reject:
+    patch:
+      tags: [Vehicle Management]
+      summary: Reject vehicle
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+
+  /api/admin/vehicles/{id}/suspend:
+    patch:
+      tags: [Vehicle Management]
+      summary: Suspend vehicle
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+
 components:
   securitySchemes:
     bearerAuth:
@@ -435,3 +613,31 @@ components:
           type: string
         user:
           $ref: '#/components/schemas/User'
+
+    RegisterVehicleRequest:
+      type: object
+      required:
+        - plateNumber
+        - vehicleType
+        - brand
+        - model
+        - manufacturingYear
+        - capacity
+        - capacityUnit
+      properties:
+        plateNumber:
+          type: string
+        vehicleType:
+          type: string
+          enum: [TRUCK, VAN, TRAILER, OTHER]
+        brand:
+          type: string
+        model:
+          type: string
+        manufacturingYear:
+          type: integer
+        capacity:
+          type: number
+        capacityUnit:
+          type: string
+          enum: [TON, KG]
