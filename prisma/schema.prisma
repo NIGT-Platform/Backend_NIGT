@@ -35,6 +35,38 @@ enum LicenseType {
   CLASS_E
 }
 
+enum VehicleStatus {
+  ACTIVE
+  INACTIVE
+  UNDER_MAINTENANCE
+  OUT_OF_SERVICE
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum DocumentType {
+  VEHICLE_REGISTRATION
+  INSURANCE
+  INSPECTION
+}
+
+enum VehicleType {
+  TRUCK
+  VAN
+  TRAILER
+  OTHER
+}
+
+enum CapacityUnit {
+  TON
+  KG
+}
+
 // ─────────────────────────────────────────────
 // User Model
 // ─────────────────────────────────────────────
@@ -58,6 +90,8 @@ model User {
   refreshTokens        RefreshToken[]
   emailVerifyTokens    EmailVerificationToken[]
   passwordResetTokens  PasswordResetToken[]
+  vehicles             Vehicle[]
+
 
   @@map("users")
 }
@@ -132,4 +166,47 @@ model PasswordResetToken {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("password_reset_tokens")
+}
+
+// ─────────────────────────────────────────────
+// Vehicle Model
+// ─────────────────────────────────────────────
+
+model Vehicle {
+  id                String         @id @default(uuid())
+  ownerId           String
+  plateNumber       String         @unique
+  vehicleType       VehicleType
+  brand             String
+  model             String
+  manufacturingYear Int
+  capacity          Float
+  capacityUnit      CapacityUnit
+  vehicleStatus     VehicleStatus  @default(ACTIVE)
+  approvalStatus    ApprovalStatus @default(PENDING)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  // Relations
+  owner             User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  documents         VehicleDocument[]
+
+  @@map("vehicles")
+}
+
+// ─────────────────────────────────────────────
+// Vehicle Document Model
+// ─────────────────────────────────────────────
+
+model VehicleDocument {
+  id           String       @id @default(uuid())
+  vehicleId    String
+  documentType DocumentType
+  documentUrl  String
+  uploadedAt   DateTime     @default(now())
+
+  // Relations
+  vehicle      Vehicle      @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@map("vehicle_documents")
 }
