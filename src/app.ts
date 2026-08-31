@@ -11,6 +11,7 @@ import { errorMiddleware } from './middleware/error.middleware';
 import authRoutes from './routes/auth.routes';
 import adminRoutes from './routes/admin.routes';
 import userRoutes from './routes/user.routes';
+import vehicleRoutes from './routes/vehicle.routes';
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/vehicles', vehicleRoutes);
 
 // ─── Health Check ─────────────────────────────────────
 app.get('/health', (_req, res) => {

@@ -54,3 +54,7 @@ export const updateVehicleApprovalStatus = async (vehicleId: string, status: App
   
   return updatedVehicle;
 };
+
+export const suspendVehicle = async (vehicleId: string) => {
+  return await updateVehicleApprovalStatus(vehicleId, 'SUSPENDED');
+};
