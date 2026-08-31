@@ -67,23 +67,36 @@ enum CapacityUnit {
   KG
 }
 
+enum ChangeRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum AssignmentStatus {
+  PENDING
+  ACTIVE
+  ENDED
+}
+
 // ─────────────────────────────────────────────
 // User Model
 // ─────────────────────────────────────────────
 
 model User {
-  id           String        @id @default(uuid())
-  firstName    String
-  middleName   String
-  lastName     String
-  email        String        @unique
-  phoneNumber  String        @unique
-  passwordHash String
-  role         Role
-  accountStatus AccountStatus @default(PENDING)
-  emailVerified Boolean      @default(false)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id              String        @id @default(uuid())
+  firstName       String
+  middleName      String
+  lastName        String
+  email           String        @unique
+  phoneNumber     String        @unique
+  passwordHash    String
+  role            Role
+  accountStatus   AccountStatus @default(PENDING)
+  emailVerified   Boolean       @default(false)
+  profileImageUrl String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   // Relations
   driverProfile        DriverProfile?
@@ -91,7 +104,9 @@ model User {
   emailVerifyTokens    EmailVerificationToken[]
   passwordResetTokens  PasswordResetToken[]
   vehicles             Vehicle[]
-
+  profileChangeRequests ProfileChangeRequest[]
+  driverAssignments    VehicleAssignment[] @relation("DriverAssignments")
+  madeAssignments      VehicleAssignment[] @relation("AssignedBy")
 
   @@map("users")
 }
@@ -190,6 +205,7 @@ model Vehicle {
   // Relations
   owner             User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   documents         VehicleDocument[]
+  assignments       VehicleAssignment[]
 
   @@map("vehicles")
 }
@@ -209,4 +225,48 @@ model VehicleDocument {
   vehicle      Vehicle      @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
 
   @@map("vehicle_documents")
+}
+
+// ─────────────────────────────────────────────
+// Profile Change Request Model
+// ─────────────────────────────────────────────
+
+model ProfileChangeRequest {
+  id          String               @id @default(uuid())
+  userId      String
+  firstName   String
+  middleName  String?
+  lastName    String
+  phoneNumber String
+  status      ChangeRequestStatus  @default(PENDING)
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  // Relations
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profile_change_requests")
+}
+
+// ─────────────────────────────────────────────
+// Vehicle Assignment Model
+// ─────────────────────────────────────────────
+
+model VehicleAssignment {
+  id              String            @id @default(uuid())
+  vehicleId       String
+  driverId        String
+  assignedById    String
+  status          AssignmentStatus  @default(ACTIVE)
+  assignedAt      DateTime          @default(now())
+  endedAt         DateTime?
+  
+  // Relations
+  vehicle         Vehicle           @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  driver          User              @relation("DriverAssignments", fields: [driverId], references: [id], onDelete: Cascade)
+  assignedBy      User              @relation("AssignedBy", fields: [assignedById], references: [id])
+
+  @@map("vehicle_assignments")
 }

@@ -12,17 +12,23 @@ import authRoutes from './routes/auth.routes';
 import adminRoutes from './routes/admin.routes';
 import userRoutes from './routes/user.routes';
 import vehicleRoutes from './routes/vehicle.routes';
+import driverRoutes from './routes/driver.routes';
 
 dotenv.config();
 
 const app = express();
 
 // ─── Security Middlewares ─────────────────────────────
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" } // allow images to load cross-origin
+}));
 app.use(cors({
   origin: process.env.CLIENT_URL || 'http://localhost:3000',
   credentials: true,
 }));
+
+// Serve static files from the uploads directory
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // ─── Body Parsers ─────────────────────────────────────
 app.use(express.json());
@@ -38,6 +44,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/vehicles', vehicleRoutes);
+app.use('/api/driver', driverRoutes);
 
 // ─── Health Check ─────────────────────────────────────
 app.get('/health', (_req, res) => {

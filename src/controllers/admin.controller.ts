@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as adminService from '../service/admin.service';
+import * as profileService from '../service/profile.service';
 
 // GET /api/admin/users
 export const getAllUsers = async (
@@ -73,3 +74,42 @@ export const suspendUser = async (
   }
 };
 
+// ── Profile Change Request Admin Endpoints ────────────────
+
+// GET /api/admin/profile-requests
+export const getProfileChangeRequests = async (
+  _req: Request, res: Response, next: NextFunction
+): Promise<void> => {
+  try {
+    const requests = await profileService.getAllProfileChangeRequests();
+    res.status(200).json({ success: true, requests });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// PATCH /api/admin/profile-requests/:id/approve
+export const approveProfileChangeRequest = async (
+  req: Request, res: Response, next: NextFunction
+): Promise<void> => {
+  try {
+    const adminId = req.user!.id;
+    const request = await profileService.approveProfileChangeRequest(req.params.id as string, adminId);
+    res.status(200).json({ success: true, message: 'Profile change approved and applied', request });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// PATCH /api/admin/profile-requests/:id/reject
+export const rejectProfileChangeRequest = async (
+  req: Request, res: Response, next: NextFunction
+): Promise<void> => {
+  try {
+    const adminId = req.user!.id;
+    const request = await profileService.rejectProfileChangeRequest(req.params.id as string, adminId);
+    res.status(200).json({ success: true, message: 'Profile change request rejected', request });
+  } catch (error) {
+    next(error);
+  }
+};

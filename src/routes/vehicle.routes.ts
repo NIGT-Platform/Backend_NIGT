@@ -1,18 +1,30 @@
 import { Router } from 'express';
+import {
+  registerVehicle,
+  getMyVehicles,
+  getVehicleById,
+  updateVehicle,
+  uploadVehicleDocuments
+} from '../controllers/vehicle.controller';
 import { authenticate } from '../middleware/auth.middleware';
 import { authorize } from '../middleware/role.middleware';
 import { upload } from '../middleware/upload.middleware';
-import * as vehicleController from '../controllers/vehicle.controller';
+import * as assignmentController from '../controllers/assignment.controller';
 
 const router = Router();
 
-// Only VEHICLE_OWNER can access these routes
+// Protect all vehicle routes (Owners only for now)
 router.use(authenticate, authorize('VEHICLE_OWNER'));
 
-router.post('/', vehicleController.registerVehicle);
-router.get('/my-vehicles', vehicleController.getMyVehicles);
-router.get('/:id', vehicleController.getVehicleById);
-router.patch('/:id', vehicleController.updateVehicle);
-router.post('/:id/documents', upload.single('document'), vehicleController.uploadVehicleDocument);
+router.post('/register', registerVehicle);
+router.get('/', getMyVehicles);
+router.get('/:id', getVehicleById);
+router.put('/:id', updateVehicle);
+router.post('/:id/documents', upload.array('documents', 5), uploadVehicleDocuments);
+
+// Assignment Endpoints
+router.post('/:vehicleId/assign', assignmentController.assignDriver);
+router.post('/:vehicleId/unassign', assignmentController.unassignDriver);
+router.get('/:vehicleId/assignments', assignmentController.getVehicleAssignments);
 
 export default router;

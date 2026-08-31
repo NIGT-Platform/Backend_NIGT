@@ -6,10 +6,12 @@ import {
   approveUser,
   rejectUser,
   suspendUser,
+  getProfileChangeRequests,
+  approveProfileChangeRequest,
+  rejectProfileChangeRequest,
 } from '../controllers/admin.controller';
 import { authenticate } from '../middleware/auth.middleware';
 import { authorize } from '../middleware/role.middleware';
-
 import * as adminVehicleController from '../controllers/admin.vehicle.controller';
 
 const router = Router();
@@ -25,6 +27,11 @@ router.patch('/users/:id/approve', approveUser);
 router.patch('/users/:id/reject', rejectUser);
 router.patch('/users/:id/suspend', suspendUser);
 
+// --- Profile Change Requests ---
+router.get('/profile-requests', getProfileChangeRequests);
+router.patch('/profile-requests/:id/approve', approveProfileChangeRequest);
+router.patch('/profile-requests/:id/reject', rejectProfileChangeRequest);
+
 // --- Vehicle Management ---
 router.get('/vehicles/pending', adminVehicleController.getPendingVehicles);
 router.get('/vehicles', adminVehicleController.getAllVehicles);
@@ -32,5 +39,11 @@ router.get('/vehicles/:id', adminVehicleController.getVehicleById);
 router.patch('/vehicles/:id/approve', adminVehicleController.approveVehicle);
 router.patch('/vehicles/:id/reject', adminVehicleController.rejectVehicle);
 router.patch('/vehicles/:id/suspend', adminVehicleController.suspendVehicle);
+
+// --- Admin Vehicle Assignments ---
+import * as assignmentController from '../controllers/assignment.controller';
+router.post('/vehicles/:vehicleId/assign', assignmentController.assignDriver);
+router.post('/vehicles/:vehicleId/unassign', assignmentController.unassignDriver);
+router.get('/vehicles/:vehicleId/assignments', assignmentController.getVehicleAssignments);
 
 export default router;
