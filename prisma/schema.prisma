@@ -79,6 +79,39 @@ enum AssignmentStatus {
   ENDED
 }
 
+enum JobStatus {
+  DRAFT
+  PENDING_ASSIGNMENT
+  ASSIGNED
+  IN_PROGRESS
+  DELIVERED
+  COMPLETED
+  CANCELLED
+}
+
+enum JobPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TripStatus {
+  SCHEDULED
+  STARTED
+  IN_TRANSIT
+  ARRIVED
+  DELIVERED
+  COMPLETED
+  CANCELLED
+}
+
+enum DeliveryStatus {
+  PENDING
+  DELIVERED
+  FAILED
+}
+
 // ─────────────────────────────────────────────
 // User Model
 // ─────────────────────────────────────────────
@@ -107,6 +140,10 @@ model User {
   profileChangeRequests ProfileChangeRequest[]
   driverAssignments    VehicleAssignment[] @relation("DriverAssignments")
   madeAssignments      VehicleAssignment[] @relation("AssignedBy")
+  jobsCreated          TransportJob[]      @relation("JobsCreated")
+  driverJobs           TransportJob[]      @relation("DriverJobs")
+  driverTrips          Trip[]              @relation("DriverTrips")
+  auditLogs            AuditLog[]
 
   @@map("users")
 }
@@ -206,6 +243,8 @@ model Vehicle {
   owner             User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   documents         VehicleDocument[]
   assignments       VehicleAssignment[]
+  jobs              TransportJob[]    @relation("VehicleJobs")
+  trips             Trip[]            @relation("VehicleTrips")
 
   @@map("vehicles")
 }
@@ -269,4 +308,118 @@ model VehicleAssignment {
   assignedBy      User              @relation("AssignedBy", fields: [assignedById], references: [id])
 
   @@map("vehicle_assignments")
+}
+
+// ─────────────────────────────────────────────
+// Transport Job Model
+// ─────────────────────────────────────────────
+
+model TransportJob {
+  id                  String        @id @default(uuid())
+  referenceNumber     String        @unique
+  createdById         String
+  vehicleId           String?
+  driverId            String?
+  customerName        String?
+  customerPhone       String?
+  pickupLocation      String
+  destination         String
+  loadDescription     String
+  loadType            String
+  loadWeight          Float
+  loadUnit            CapacityUnit  @default(TON)
+  itemCount           Int?
+  specialInstructions String?
+  plannedPickupDate   DateTime?
+  expectedDeliveryDate DateTime?
+  priority            JobPriority   @default(MEDIUM)
+  status              JobStatus     @default(PENDING_ASSIGNMENT)
+  cancellationReason  String?
+  cancelledAt         DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  // Relations
+  createdBy           User          @relation("JobsCreated", fields: [createdById], references: [id])
+  vehicle             Vehicle?      @relation("VehicleJobs", fields: [vehicleId], references: [id])
+  driver              User?         @relation("DriverJobs", fields: [driverId], references: [id])
+  trips               Trip[]
+
+  @@map("transport_jobs")
+}
+
+// ─────────────────────────────────────────────
+// Trip Model
+// ─────────────────────────────────────────────
+
+model Trip {
+  id                  String        @id @default(uuid())
+  referenceNumber     String        @unique
+  jobId               String
+  vehicleId           String
+  driverId            String
+  status              TripStatus    @default(SCHEDULED)
+  pickupLocation      String
+  destination         String
+  plannedDeparture    DateTime?
+  actualDeparture     DateTime?
+  expectedArrival     DateTime?
+  actualArrival       DateTime?
+  startingOdometer    Float?
+  endingOdometer      Float?
+  distanceTravelled   Float?
+  notes               String?
+  cancellationReason  String?
+  cancelledAt         DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  // Relations
+  job                 TransportJob  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  vehicle             Vehicle       @relation("VehicleTrips", fields: [vehicleId], references: [id])
+  driver              User          @relation("DriverTrips", fields: [driverId], references: [id])
+  delivery            Delivery?
+
+  @@map("trips")
+}
+
+// ─────────────────────────────────────────────
+// Delivery Model
+// ─────────────────────────────────────────────
+
+model Delivery {
+  id                  String         @id @default(uuid())
+  tripId              String         @unique
+  status              DeliveryStatus @default(DELIVERED)
+  deliveredAt         DateTime       @default(now())
+  receiverName        String
+  receiverPhone       String?
+  notes               String?
+  proofDocumentUrl    String?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  // Relations
+  trip                Trip           @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@map("deliveries")
+}
+
+// ─────────────────────────────────────────────
+// Audit Log Model
+// ─────────────────────────────────────────────
+
+model AuditLog {
+  id                  String        @id @default(uuid())
+  userId              String?
+  action              String
+  entityType          String
+  entityId            String
+  details             String?
+  createdAt           DateTime      @default(now())
+
+  // Relations
+  user                User?         @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
 }
