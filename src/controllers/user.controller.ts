@@ -60,3 +60,35 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
     next(error);
   }
 };
+
+import prisma from '../utils/prisma.utils';
+
+// GET /api/users/available-drivers
+export const getAvailableDrivers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const drivers = await prisma.user.findMany({
+      where: {
+        role: 'DRIVER',
+        accountStatus: 'ACTIVE',
+        // Drivers who do NOT have any ACTIVE assignments
+        driverAssignments: {
+          none: {
+            status: 'ACTIVE'
+          }
+        }
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        phoneNumber: true,
+        profileImageUrl: true,
+      },
+      orderBy: { firstName: 'asc' }
+    });
+    
+    res.status(200).json({ success: true, drivers });
+  } catch (error) {
+    next(error);
+  }
+};

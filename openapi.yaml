@@ -14,6 +14,7 @@ tags:
   - name: Password Management
   - name: Admin User Management
   - name: Vehicle Management
+  - name: Driver Assignments
 
 paths:
   /api/auth/register/vehicle-owner:
@@ -233,6 +234,16 @@ paths:
         '401':
           description: Unauthorized
 
+  /api/users/available-drivers:
+    get:
+      tags: [Driver Assignments]
+      summary: Get list of active drivers with no current assignments
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+
   /api/admin/users:
     get:
       tags: [Admin User Management]
@@ -436,6 +447,70 @@ paths:
         '201':
           description: Document uploaded successfully
 
+  /api/vehicles/{id}/assign:
+    post:
+      tags: [Driver Assignments]
+      summary: Assign a driver to a vehicle
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                driverId:
+                  type: string
+      responses:
+        '201':
+          description: Success
+
+  /api/vehicles/{id}/unassign:
+    post:
+      tags: [Driver Assignments]
+      summary: Unassign a driver from a vehicle
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                driverId:
+                  type: string
+      responses:
+        '200':
+          description: Success
+
+  /api/vehicles/{id}/assignments:
+    get:
+      tags: [Driver Assignments]
+      summary: Get assignment history for a vehicle
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+
   /api/admin/vehicles:
     get:
       tags: [Vehicle Management]
@@ -516,6 +591,16 @@ paths:
           required: true
           schema:
             type: string
+      responses:
+        '200':
+          description: Success
+
+  /api/driver/my-assignment:
+    get:
+      tags: [Driver Assignments]
+      summary: Get the current active assignment for a driver
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
