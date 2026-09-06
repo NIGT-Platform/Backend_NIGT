@@ -4,7 +4,7 @@ import {
   getMyVehicles,
   getVehicleById,
   updateVehicle,
-  uploadVehicleDocuments
+  uploadVehicleDocument
 } from '../controllers/vehicle.controller';
 import { authenticate } from '../middleware/auth.middleware';
 import { authorize } from '../middleware/role.middleware';
@@ -20,7 +20,7 @@ router.post('/register', registerVehicle);
 router.get('/', getMyVehicles);
 router.get('/:id', getVehicleById);
 router.put('/:id', updateVehicle);
-router.post('/:id/documents', upload.array('documents', 5), uploadVehicleDocuments);
+router.post('/:id/documents', upload.single('document'), uploadVehicleDocument);
 
 // Assignment Endpoints
 router.post('/:vehicleId/assign', assignmentController.assignDriver);
