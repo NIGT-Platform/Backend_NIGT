@@ -41,7 +41,7 @@ export const registerDriver = async (
       res.status(400).json({ success: false, errors: parsed.error.flatten().fieldErrors });
       return;
     }
-    const licenseDocumentUrl = req.file?.filename || '';
+    const licenseDocumentUrl = req.file ? `/uploads/${req.file.filename}` : '';
     if (!licenseDocumentUrl) {
       res.status(400).json({ success: false, message: 'License document is required' });
       return;

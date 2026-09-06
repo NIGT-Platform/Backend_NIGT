@@ -22,7 +22,7 @@ export const getAllUsers = async () => {
 
 export const getPendingUsers = async () => {
   return prisma.user.findMany({
-    where: { accountStatus: 'PENDING', emailVerified: true },
+    where: { accountStatus: 'PENDING' },
     select: {
       id: true,
       firstName: true,

@@ -16,10 +16,13 @@ const router = Router();
 // Protect all vehicle routes (Owners only for now)
 router.use(authenticate, authorize('VEHICLE_OWNER'));
 
+router.post('/', registerVehicle);
 router.post('/register', registerVehicle);
+router.get('/my-vehicles', getMyVehicles);
 router.get('/', getMyVehicles);
 router.get('/:id', getVehicleById);
 router.put('/:id', updateVehicle);
+router.patch('/:id', updateVehicle);
 router.post('/:id/documents', upload.single('document'), uploadVehicleDocument);
 
 // Assignment Endpoints

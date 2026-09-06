@@ -9,15 +9,20 @@ import {
   getProfileChangeRequests,
   approveProfileChangeRequest,
   rejectProfileChangeRequest,
+  getDashboardStats,
 } from '../controllers/admin.controller';
 import { authenticate } from '../middleware/auth.middleware';
 import { authorize } from '../middleware/role.middleware';
 import * as adminVehicleController from '../controllers/admin.vehicle.controller';
+import * as assignmentController from '../controllers/assignment.controller';
 
 const router = Router();
 
 // All admin routes require authentication + ADMIN role
 router.use(authenticate, authorize('ADMIN'));
+
+// --- Dashboard Stats ---
+router.get('/stats', getDashboardStats);
 
 // --- User Management ---
 router.get('/users/pending', getPendingUsers);
@@ -41,7 +46,6 @@ router.patch('/vehicles/:id/reject', adminVehicleController.rejectVehicle);
 router.patch('/vehicles/:id/suspend', adminVehicleController.suspendVehicle);
 
 // --- Admin Vehicle Assignments ---
-import * as assignmentController from '../controllers/assignment.controller';
 router.post('/vehicles/:vehicleId/assign', assignmentController.assignDriver);
 router.post('/vehicles/:vehicleId/unassign', assignmentController.unassignDriver);
 router.get('/vehicles/:vehicleId/assignments', assignmentController.getVehicleAssignments);
