@@ -15,6 +15,8 @@ tags:
   - name: Admin User Management
   - name: Vehicle Management
   - name: Driver Assignments
+  - name: Transport Jobs
+  - name: Trips & Delivery
 
 paths:
   /api/auth/register/vehicle-owner:
@@ -604,6 +606,194 @@ paths:
       responses:
         '200':
           description: Success
+
+  # ─── Transport Jobs ─────────────────────────────
+  /api/jobs:
+    post:
+      tags: [Transport Jobs]
+      summary: Create a transport job
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Transport job created successfully
+    get:
+      tags: [Transport Jobs]
+      summary: List transport jobs
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+
+  /api/jobs/{id}:
+    get:
+      tags: [Transport Jobs]
+      summary: Get transport job by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+    patch:
+      tags: [Transport Jobs]
+      summary: Update transport job
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+
+  /api/jobs/{id}/assign:
+    post:
+      tags: [Transport Jobs]
+      summary: Assign vehicle to transport job
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Vehicle and driver assigned successfully
+
+  /api/jobs/{id}/cancel:
+    post:
+      tags: [Transport Jobs]
+      summary: Cancel a transport job
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Job cancelled successfully
+
+  # ─── Trips & Operations ─────────────────────────
+  /api/trips:
+    get:
+      tags: [Trips & Delivery]
+      summary: List trips
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+
+  /api/trips/{id}:
+    get:
+      tags: [Trips & Delivery]
+      summary: Get trip details
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+
+  /api/trips/{id}/start:
+    post:
+      tags: [Trips & Delivery]
+      summary: Start trip and log initial odometer (Driver only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trip started successfully
+
+  /api/trips/{id}/status:
+    patch:
+      tags: [Trips & Delivery]
+      summary: Update trip status (Driver only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trip status updated
+
+  /api/trips/{id}/delivery:
+    post:
+      tags: [Trips & Delivery]
+      summary: Confirm delivery with receiver details & proof photo (Driver only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Delivery confirmed successfully
+
+  /api/trips/{id}/complete:
+    post:
+      tags: [Trips & Delivery]
+      summary: Complete trip and record ending odometer (Driver only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trip completed successfully
+
+  /api/trips/{id}/cancel:
+    post:
+      tags: [Trips & Delivery]
+      summary: Cancel a trip (Admin/Owner)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trip cancelled successfully
 
 components:
   securitySchemes:
