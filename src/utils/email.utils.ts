@@ -17,23 +17,29 @@ export const sendVerificationEmail = async (
     firstName: string,
     token: string
 ): Promise<void> => {
-    const verifyUrl =
-        `${env.clientUrl}/verify-email?token=${token}`;
+    const verifyUrl = `${env.clientUrl}/verify-email?token=${token}`;
+    const localhostUrl = `http://localhost:3000/verify-email?token=${token}`;
 
     await transporter.sendMail({
         from: env.emailFrom,
         to: email,
         subject: 'NIGT — Verify Your Email Address',
-        html: `<h2>Welcome to NIGT, ${firstName}!</h2>
-        <p> Please verify your email address by clicking the button below:</p>
-        <div style="margin-top: 20px; margin-bottom: 20px;">
-          <a href="${verifyUrl}" 
-          style="padding:12px 24px;background:#0F1f38;color:white;text-decoration:none;border-radius:5px;font-weight:bold;">
-            Verify Email
-          </a>
+        html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded: 8px;">
+          <h2 style="color: #0F1f38;">Welcome to NIGT, ${firstName}!</h2>
+          <p style="color: #475569; font-size: 15px;">Please verify your email address to activate your account by clicking the button below:</p>
+          <div style="margin: 25px 0;">
+            <a href="${verifyUrl}" 
+               style="display: inline-block; padding: 14px 28px; background: #0F1f38; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 15px;">
+              Verify Email Address
+            </a>
+          </div>
+          <p style="color: #64748b; font-size: 13px;">This link will expire in <strong>24 hours</strong>.</p>
+          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+          <p style="color: #94a3b8; font-size: 12px; margin-bottom: 5px;"><strong>Testing on your computer?</strong> If the button above does not open on your local machine, use this link:</p>
+          <p style="color: #3b82f6; font-size: 12px; word-break: break-all;"><a href="${localhostUrl}">${localhostUrl}</a></p>
+          <p style="color: #94a3b8; font-size: 12px;">If you did not create this account, please ignore this email.</p>
         </div>
-        <p>This link expires in <strong>24 hours</strong>.</p>
-      <p>If you did not register, please ignore this email.</p> 
         `,
     });
 };
