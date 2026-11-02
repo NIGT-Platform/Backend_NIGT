@@ -15,6 +15,8 @@ import vehicleRoutes from './routes/vehicle.routes';
 import driverRoutes from './routes/driver.routes';
 import jobRoutes from './routes/job.routes';
 import tripRoutes from './routes/trip.routes';
+import shopRoutes from './routes/shop.routes';
+import adminShopRoutes from './routes/admin.shop.routes';
 
 dotenv.config();
 
@@ -56,6 +58,8 @@ app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/driver', driverRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/trips', tripRoutes);
+app.use('/api/shop', shopRoutes);
+app.use('/api/admin/shop', adminShopRoutes);
 
 // ─── Health Check ─────────────────────────────────────
 app.get('/health', (_req, res) => {
