@@ -76,26 +76,35 @@ export const getJobs = async (filters: {
     where.priority = filters.priority;
   }
 
+  const andConditions: any[] = [];
+
   if (filters.search) {
-    where.OR = [
-      { referenceNumber: { contains: filters.search, mode: 'insensitive' } },
-      { pickupLocation: { contains: filters.search, mode: 'insensitive' } },
-      { destination: { contains: filters.search, mode: 'insensitive' } },
-      { loadDescription: { contains: filters.search, mode: 'insensitive' } },
-      { customerName: { contains: filters.search, mode: 'insensitive' } },
-    ];
+    andConditions.push({
+      OR: [
+        { referenceNumber: { contains: filters.search, mode: 'insensitive' } },
+        { pickupLocation: { contains: filters.search, mode: 'insensitive' } },
+        { destination: { contains: filters.search, mode: 'insensitive' } },
+        { loadDescription: { contains: filters.search, mode: 'insensitive' } },
+        { customerName: { contains: filters.search, mode: 'insensitive' } },
+      ],
+    });
   }
 
   // Role based filtering
   if (filters.userRole === 'DRIVER') {
-    where.driverId = filters.userId;
+    andConditions.push({ driverId: filters.userId });
   } else if (filters.userRole === 'VEHICLE_OWNER') {
     // Owners see jobs they created, or jobs assigned to vehicles they own
-    where.OR = [
-      ...(where.OR ? [{ AND: where.OR }] : []),
-      { createdById: filters.userId },
-      { vehicle: { ownerId: filters.userId } },
-    ];
+    andConditions.push({
+      OR: [
+        { createdById: filters.userId },
+        { vehicle: { ownerId: filters.userId } },
+      ],
+    });
+  }
+
+  if (andConditions.length > 0) {
+    where.AND = andConditions;
   }
 
   return await prisma.transportJob.findMany({

@@ -89,6 +89,69 @@ export const verifyEmail = async (
   }
 };
 
+export const verifyEmailLink = async (
+  req: Request, res: Response
+): Promise<void> => {
+  const token = ((req.query.token as string) || '').trim();
+  if (!token) {
+    res.status(400).send(`
+      <!DOCTYPE html>
+      <html>
+        <head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Verification Failed</title></head>
+        <body style="font-family: Arial, sans-serif; background: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px;">
+          <div style="background: white; border-radius: 16px; padding: 32px; max-width: 440px; width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.06); text-align: center;">
+            <div style="font-size: 40px; margin-bottom: 12px;">❌</div>
+            <h2 style="color: #0f172a; margin-bottom: 8px;">Missing Verification Token</h2>
+            <p style="color: #64748b; font-size: 14px; line-height: 1.5;">Please use the complete link sent to your email address or copy the token into the NIGT mobile app.</p>
+          </div>
+        </body>
+      </html>
+    `);
+    return;
+  }
+
+  try {
+    await authService.verifyEmail(token);
+    res.status(200).send(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Email Verified Successfully</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; background: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px;">
+          <div style="background: white; border-radius: 16px; padding: 32px; max-width: 440px; width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.06); text-align: center; border: 1px solid #e2e8f0;">
+            <div style="font-size: 48px; margin-bottom: 12px;">✅</div>
+            <h2 style="color: #0f172a; margin-bottom: 8px;">Email Verified!</h2>
+            <p style="color: #475569; font-size: 15px; line-height: 1.5; margin-bottom: 20px;">Your email address has been verified successfully. Your account is now pending admin approval.</p>
+            <div style="background: #f1f5f9; border-radius: 10px; padding: 14px; font-size: 13px; color: #334155;">
+              You can now return to the <strong>NIGT Mobile App</strong> or <strong>Web Dashboard</strong>.
+            </div>
+          </div>
+        </body>
+      </html>
+    `);
+  } catch (error: any) {
+    const msg = error?.message || 'Verification token is invalid or has expired.';
+    res.status(400).send(`
+      <!DOCTYPE html>
+      <html>
+        <head><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Verification Notice</title></head>
+        <body style="font-family: Arial, sans-serif; background: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px;">
+          <div style="background: white; border-radius: 16px; padding: 32px; max-width: 440px; width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.06); text-align: center; border: 1px solid #e2e8f0;">
+            <div style="font-size: 48px; margin-bottom: 12px;">⚠️</div>
+            <h2 style="color: #0f172a; margin-bottom: 8px;">Verification Notice</h2>
+            <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin-bottom: 20px;">${msg}</p>
+            <div style="background: #f1f5f9; border-radius: 10px; padding: 14px; font-size: 13px; color: #334155;">
+              If your email is already verified, you can open the <strong>NIGT App</strong> to sign in.
+            </div>
+          </div>
+        </body>
+      </html>
+    `);
+  }
+};
+
 
 export const resendVerification = async (
   req: Request, res: Response, next: NextFunction

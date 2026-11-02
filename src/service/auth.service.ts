@@ -119,8 +119,10 @@ export const login = async (data: LoginInput) => {
   const isMatch = await comparePassword(data.password, user.passwordHash);
   if (!isMatch) throw new AppError('Invalid email or password', 401);
 
-  if (!user.emailVerified) throw new AppError('Please verify your email first', 403);
-  if (user.accountStatus === 'PENDING') throw new AppError('Your account is pending admin approval', 403);
+  // Admin accounts never require pending approval to login
+  if (user.role !== 'ADMIN') {
+    if (user.accountStatus === 'PENDING') throw new AppError('Your account is pending admin approval', 403);
+  }
   if (user.accountStatus === 'REJECTED') throw new AppError('Your account has been rejected', 403);
   if (user.accountStatus === 'SUSPENDED') throw new AppError('Your account has been suspended', 403);
 
@@ -146,6 +148,7 @@ export const login = async (data: LoginInput) => {
       email: user.email,
       role: user.role,
       accountStatus: user.accountStatus,
+      emailVerified: user.emailVerified,
     },
   };
 };

@@ -4,6 +4,7 @@ import {
   registerDriver,
   login,
   verifyEmail,
+  verifyEmailLink,
   resendVerification,
   forgotPassword,
   resetPassword,
@@ -19,6 +20,7 @@ router.post('/register/vehicle-owner', registerVehicleOwner);
 router.post('/register/driver', upload.single('licenseDocument'), registerDriver);
 router.post('/login', login);
 router.post('/verify-email', verifyEmail);
+router.get('/verify-email', verifyEmailLink);
 router.post('/resend-verification', resendVerification);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
