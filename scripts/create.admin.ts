@@ -5,45 +5,65 @@ dotenv.config();
 
 const prisma = new PrismaClient();
 
-async function createAdmin() {
-  console.log('🔐 Creating Admin account...');
+async function createOrUpdateAdmin() {
+  console.log('🔐 Setting up Admin account...');
+
+  const targetEmail = 'hadguab77@gmail.com';
+  const targetPhone = '+224624376553';
+  const newPassword = 'Admin123!';
+  const passwordHash = await bcrypt.hash(newPassword, 12);
 
   const existingAdmin = await prisma.user.findFirst({
-    where: { role: 'ADMIN' },
-  });
-
-  if (existingAdmin) {
-    console.log('⚠️  Admin already exists:', existingAdmin.email);
-    await prisma.$disconnect();
-    return;
-  }
-
-  const passwordHash = await bcrypt.hash('Admin@1234', 12);
-
-  const admin = await prisma.user.create({
-    data: {
-      firstName: 'Super',
-      middleName: 'NIGT',
-      lastName: 'Admin',
-      email: 'hadguab77@gmail.com',
-      phoneNumber: '+224624376553',
-      passwordHash,
-      role: 'ADMIN',
-      accountStatus: 'ACTIVE',
-      emailVerified: true,
+    where: {
+      OR: [
+        { email: targetEmail },
+        { role: 'ADMIN' },
+      ],
     },
   });
 
-  console.log('✅ Admin created!');
-  console.log('   Email   :', admin.email);
-  console.log('   Phone   :', admin.phoneNumber);
-  console.log('   Password: Admin@1234');
-  console.log('   ⚠️  Change the password after first login!');
+  if (existingAdmin) {
+    const updated = await prisma.user.update({
+      where: { id: existingAdmin.id },
+      data: {
+        email: targetEmail,
+        phoneNumber: targetPhone,
+        passwordHash,
+        role: 'ADMIN',
+        accountStatus: 'ACTIVE',
+        emailVerified: true,
+      },
+    });
+
+    console.log('✅ Admin account updated successfully!');
+    console.log('   Email   :', updated.email);
+    console.log('   Phone   :', updated.phoneNumber);
+    console.log('   Password:', newPassword);
+  } else {
+    const admin = await prisma.user.create({
+      data: {
+        firstName: 'Super',
+        middleName: 'NIGT',
+        lastName: 'Admin',
+        email: targetEmail,
+        phoneNumber: targetPhone,
+        passwordHash,
+        role: 'ADMIN',
+        accountStatus: 'ACTIVE',
+        emailVerified: true,
+      },
+    });
+
+    console.log('✅ Admin account created successfully!');
+    console.log('   Email   :', admin.email);
+    console.log('   Phone   :', admin.phoneNumber);
+    console.log('   Password:', newPassword);
+  }
 
   await prisma.$disconnect();
 }
 
-createAdmin().catch((e) => {
+createOrUpdateAdmin().catch((e) => {
   console.error('❌ Failed:', e.message);
   process.exit(1);
 });
