@@ -106,11 +106,13 @@ export const registerDriver = async (
 
 
 export const login = async (data: LoginInput) => {
+  const identifier = data.emailOrPhone.trim();
+
   const user = await prisma.user.findFirst({
     where: {
       OR: [
-        { email: data.emailOrPhone },
-        { phoneNumber: data.emailOrPhone },
+        { email: { equals: identifier, mode: 'insensitive' } },
+        { phoneNumber: identifier },
       ],
     },
   });
