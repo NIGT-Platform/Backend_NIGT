@@ -1,11 +1,10 @@
 import nodemailer from 'nodemailer';
 import { env } from '../config/env';
 
-
 const transporter = nodemailer.createTransport({
     host: env.mailtrapHost,
     port: Number(env.mailtrapPort),
-    secure: Number(env.mailtrapPort) === 465, // true for 465 (Gmail), false for other ports
+    secure: Number(env.mailtrapPort) === 465, // true for 465 (Gmail / SSL), false for other ports
     auth: {
         user: env.mailtrapUser,
         pass: env.mailtrapPass,
@@ -19,7 +18,6 @@ export const sendVerificationEmail = async (
 ): Promise<void> => {
     const webVerifyUrl = `${env.clientUrl}/verify-email?token=${token}`;
     const directApiUrl = `${env.appUrl}/api/auth/verify-email?token=${token}`;
-    const networkApiUrl = `http://10.90.0.233:5000/api/auth/verify-email?token=${token}`;
 
     await transporter.sendMail({
         from: env.emailFrom,
@@ -54,10 +52,9 @@ export const sendVerificationEmail = async (
           <p style="color: #64748b; font-size: 13px;">This verification token will expire in <strong>24 hours</strong>.</p>
           <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
           
-          <p style="color: #94a3b8; font-size: 12px; margin-bottom: 6px;"><strong>Alternative Links:</strong></p>
+          <p style="color: #94a3b8; font-size: 12px; margin-bottom: 6px;"><strong>Alternative Link:</strong></p>
           <ul style="color: #3b82f6; font-size: 12px; padding-left: 20px; line-height: 1.8; word-break: break-all;">
             <li><a href="${webVerifyUrl}" style="color: #3b82f6;">Web App Verification (${webVerifyUrl})</a></li>
-            <li><a href="${networkApiUrl}" style="color: #3b82f6;">Mobile Direct Link (${networkApiUrl})</a></li>
           </ul>
           <p style="color: #94a3b8; font-size: 12px;">If you did not create this account, please ignore this email.</p>
         </div>
@@ -70,8 +67,7 @@ export const sendPasswordResetEmail = async (
     firstName: string,
     token: string
 ): Promise<void> => {
-    const resetUrl =
-        `${env.clientUrl}/reset-password?token=${token}`;
+    const resetUrl = `${env.clientUrl}/reset-password?token=${token}`;
 
     await transporter.sendMail({
         from: env.emailFrom,
@@ -88,5 +84,3 @@ export const sendPasswordResetEmail = async (
     `,
     });
 };
-
-
