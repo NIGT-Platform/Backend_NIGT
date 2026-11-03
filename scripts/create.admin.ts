@@ -25,8 +25,8 @@ async function createAdmin() {
       firstName: 'Super',
       middleName: 'NIGT',
       lastName: 'Admin',
-      email: 'admin@nigt.com',
-      phoneNumber: '+251900000000',
+      email: 'hadguab77@gmail.com',
+      phoneNumber: '+224624376553',
       passwordHash,
       role: 'ADMIN',
       accountStatus: 'ACTIVE',
@@ -36,6 +36,7 @@ async function createAdmin() {
 
   console.log('✅ Admin created!');
   console.log('   Email   :', admin.email);
+  console.log('   Phone   :', admin.phoneNumber);
   console.log('   Password: Admin@1234');
   console.log('   ⚠️  Change the password after first login!');
 
