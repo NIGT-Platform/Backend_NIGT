@@ -21,6 +21,7 @@ router.delete('/products/:id', adminShopController.deleteProduct);
 
 // Product Images
 router.post('/products/:id/images', upload.single('image'), adminShopController.addProductImage);
+router.patch('/products/:id/images/:imageId/primary', adminShopController.setPrimaryImage);
 router.delete('/products/images/:imageId', adminShopController.deleteProductImage);
 
 // Orders

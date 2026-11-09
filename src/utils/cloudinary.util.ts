@@ -65,3 +65,4 @@ export const uploadFileToCloudinary = async (
     return `/uploads/${file.filename}`;
   }
 };
+

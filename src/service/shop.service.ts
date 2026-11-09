@@ -127,10 +127,16 @@ export const addProductImage = async (
   imageUrl: string,
   isPrimary: boolean
 ) => {
-  const product = await prisma.product.findUnique({ where: { id: productId } });
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    include: { images: true },
+  });
   if (!product) throw new AppError('Product not found', 404);
 
-  if (isPrimary) {
+  // If this is the first image or user selected primary, set as primary
+  const shouldBePrimary = isPrimary || product.images.length === 0;
+
+  if (shouldBePrimary) {
     await prisma.productImage.updateMany({
       where: { productId },
       data: { isPrimary: false },
@@ -138,7 +144,24 @@ export const addProductImage = async (
   }
 
   return await prisma.productImage.create({
-    data: { productId, imageUrl, isPrimary },
+    data: { productId, imageUrl, isPrimary: shouldBePrimary },
+  });
+};
+
+export const setPrimaryProductImage = async (productId: string, imageId: string) => {
+  const image = await prisma.productImage.findUnique({ where: { id: imageId } });
+  if (!image || image.productId !== productId) {
+    throw new AppError('Product image not found', 404);
+  }
+
+  await prisma.productImage.updateMany({
+    where: { productId },
+    data: { isPrimary: false },
+  });
+
+  return await prisma.productImage.update({
+    where: { id: imageId },
+    data: { isPrimary: true },
   });
 };
 

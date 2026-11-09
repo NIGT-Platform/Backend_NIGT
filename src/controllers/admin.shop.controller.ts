@@ -114,6 +114,13 @@ export const deleteProductImage = async (req: Request, res: Response, next: Next
   } catch (error) { next(error); }
 };
 
+export const setPrimaryImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const image = await shopService.setPrimaryProductImage(str(req.params.id), str(req.params.imageId));
+    res.status(200).json({ success: true, message: 'Image set as primary', image });
+  } catch (error) { next(error); }
+};
+
 // ─── Admin Orders ─────────────────────────────────────────────────────────────
 
 export const listOrders = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
