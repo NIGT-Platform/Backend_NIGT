@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as profileService from '../service/profile.service';
 import { profileEditRequestSchema } from '../validators/profile.validators';
+import { uploadFileToCloudinary } from '../utils/cloudinary.util';
 
 // GET /api/users/profile
 export const getProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -21,7 +22,7 @@ export const uploadProfileImage = async (req: Request, res: Response, next: Next
       res.status(400).json({ success: false, message: 'Image file is required' });
       return;
     }
-    const imageUrl = `/uploads/${req.file.filename}`;
+    const imageUrl = await uploadFileToCloudinary(req.file, 'avatars');
     const result = await profileService.updateProfileImage(userId, imageUrl);
     res.status(200).json({ success: true, message: 'Profile image updated', ...result });
   } catch (error) {

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as tripService from '../service/trip.service';
+import { uploadFileToCloudinary } from '../utils/cloudinary.util';
 import {
   startTripSchema,
   deliverySchema,
@@ -76,7 +77,7 @@ export const recordDelivery = async (req: Request, res: Response, next: NextFunc
       return;
     }
 
-    const proofDocumentUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
+    const proofDocumentUrl = req.file ? await uploadFileToCloudinary(req.file, 'deliveries') : undefined;
 
     const result = await tripService.recordDelivery(
       req.params.id as string,

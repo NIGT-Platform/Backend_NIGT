@@ -27,6 +27,11 @@ export const env = {
     awsRegion: process.env.AWS_REGION || 'us-east-1',
     awsS3Bucket: process.env.AWS_S3_BUCKET as string,
 
+    // Cloudinary
+    cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
+    cloudinaryApiKey: process.env.CLOUDINARY_API_KEY || '',
+    cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET || '',
+
     // App URLs
     appUrl: process.env.APP_URL || 'http://localhost:5000',
     clientUrl: process.env.CLIENT_URL || 'http://localhost:3000',

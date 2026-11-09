@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as shopService from '../service/shop.service';
+import { uploadFileToCloudinary } from '../utils/cloudinary.util';
 
 type OrderStatus = 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
 
@@ -100,7 +101,7 @@ export const addProductImage = async (req: Request, res: Response, next: NextFun
   try {
     if (!req.file) { res.status(400).json({ success: false, message: 'Image file is required' }); return; }
     const isPrimary = req.body.isPrimary === 'true';
-    const imageUrl = `uploads/${req.file.filename}`;
+    const imageUrl = await uploadFileToCloudinary(req.file, 'products');
     const image = await shopService.addProductImage(str(req.params.id), imageUrl, isPrimary);
     res.status(201).json({ success: true, message: 'Image added successfully', image });
   } catch (error) { next(error); }

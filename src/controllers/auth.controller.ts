@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as authService from '../service/auth.service';
+import { uploadFileToCloudinary } from '../utils/cloudinary.util';
 import {
   vehicleOwnerRegisterSchema,
   driverRegisterSchema,
@@ -41,7 +42,7 @@ export const registerDriver = async (
       res.status(400).json({ success: false, errors: parsed.error.flatten().fieldErrors });
       return;
     }
-    const licenseDocumentUrl = req.file ? `/uploads/${req.file.filename}` : '';
+    const licenseDocumentUrl = req.file ? await uploadFileToCloudinary(req.file, 'licenses') : '';
     if (!licenseDocumentUrl) {
       res.status(400).json({ success: false, message: 'License document is required' });
       return;

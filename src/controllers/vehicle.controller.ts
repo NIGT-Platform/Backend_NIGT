@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as vehicleService from '../service/vehicle.service';
 import { registerVehicleSchema, updateVehicleSchema, uploadVehicleDocumentSchema } from '../validators/vehicle.validators';
+import { uploadFileToCloudinary } from '../utils/cloudinary.util';
 
 export const registerVehicle = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -73,7 +74,7 @@ export const uploadVehicleDocument = async (req: Request, res: Response, next: N
       return;
     }
 
-    const documentUrl = `/uploads/${req.file.filename}`;
+    const documentUrl = await uploadFileToCloudinary(req.file, 'vehicles');
 
     const document = await vehicleService.addVehicleDocument(id, ownerId, parsed.data, documentUrl);
     res.status(201).json({ success: true, message: 'Document uploaded successfully', document });
