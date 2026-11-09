@@ -4,6 +4,7 @@ import { uploadFileToCloudinary } from '../utils/cloudinary.util';
 import {
   vehicleOwnerRegisterSchema,
   driverRegisterSchema,
+  buyerRegisterSchema,
   loginSchema,
   verifyEmailSchema,
   resendVerificationSchema,
@@ -26,6 +27,26 @@ export const registerVehicleOwner = async (
       success: true,
       message: 'Registration successful. Please check your email to verify your account.',
       user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const registerBuyer = async (
+  req: Request, res: Response, next: NextFunction
+): Promise<void> => {
+  try {
+    const parsed = buyerRegisterSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ success: false, errors: parsed.error.flatten().fieldErrors });
+      return;
+    }
+    const result = await authService.registerBuyer(parsed.data);
+    res.status(201).json({
+      success: true,
+      message: 'Account created successfully. Welcome to NIGT!',
+      ...result,
     });
   } catch (error) {
     next(error);

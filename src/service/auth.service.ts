@@ -4,7 +4,7 @@ import { generateSecureToken, getExpiryDate, isExpired } from '../utils/token.ut
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt.utils';
 import { sendVerificationEmail, sendPasswordResetEmail } from '../utils/email.utils';
 import { AppError } from '../middleware/error.middleware';
-import { VehicleOwnerRegisterInput, DriverRegisterInput, LoginInput } from '../validators/auth.validators';
+import { VehicleOwnerRegisterInput, DriverRegisterInput, BuyerRegisterInput, LoginInput } from '../validators/auth.validators';
 
 
 
@@ -48,6 +48,61 @@ export const registerVehicleOwner = async (data: VehicleOwnerRegisterInput) => {
     role: user.role,
     accountStatus: user.accountStatus,
     emailVerified: user.emailVerified,
+  };
+};
+
+export const registerBuyer = async (data: BuyerRegisterInput) => {
+  const existing = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { email: { equals: data.email.trim(), mode: 'insensitive' } },
+        { phoneNumber: data.phoneNumber.trim() },
+      ],
+    },
+  });
+  if (existing) {
+    throw new AppError('An account with this email or phone number already exists', 409);
+  }
+
+  const passwordHash = await hashPassword(data.password);
+  const user = await prisma.user.create({
+    data: {
+      firstName: data.firstName.trim(),
+      middleName: '',
+      lastName: data.lastName.trim(),
+      email: data.email.trim().toLowerCase(),
+      phoneNumber: data.phoneNumber.trim(),
+      passwordHash,
+      role: 'BUYER' as any,
+      accountStatus: 'ACTIVE',
+      emailVerified: true,
+    },
+  });
+
+  const payload = { userId: user.id, email: user.email, role: user.role };
+  const accessToken = generateAccessToken(payload);
+  const refreshToken = generateRefreshToken(payload);
+
+  await prisma.refreshToken.create({
+    data: {
+      token: refreshToken,
+      userId: user.id,
+      expiresAt: getExpiryDate(7 * 24 * 60), // 7 days
+    },
+  });
+
+  return {
+    user: {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+      accountStatus: user.accountStatus,
+      emailVerified: user.emailVerified,
+    },
+    accessToken,
+    refreshToken,
   };
 };
 

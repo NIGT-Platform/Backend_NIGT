@@ -17,6 +17,7 @@ import jobRoutes from './routes/job.routes';
 import tripRoutes from './routes/trip.routes';
 import shopRoutes from './routes/shop.routes';
 import adminShopRoutes from './routes/admin.shop.routes';
+import heroSlideRoutes from './routes/heroSlide.routes';
 
 dotenv.config();
 
@@ -60,6 +61,7 @@ app.use('/api/jobs', jobRoutes);
 app.use('/api/trips', tripRoutes);
 app.use('/api/shop', shopRoutes);
 app.use('/api/admin/shop', adminShopRoutes);
+app.use('/api/hero-slides', heroSlideRoutes);
 
 // ─── Health Check ─────────────────────────────────────
 app.get('/health', (_req, res) => {

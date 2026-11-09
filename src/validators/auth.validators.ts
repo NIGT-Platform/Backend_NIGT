@@ -78,8 +78,22 @@ export const resetPasswordSchema = z.object({
 export const refreshTokenSchema = z.object({
   refreshToken: z.string().min(1, 'Refresh token is required'),
 });
+
+export const buyerRegisterSchema = z.object({
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  email: z.string().email('Invalid email address'),
+  phoneNumber: z.string().min(6, 'Phone number is required'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  confirmPassword: z.string().optional(),
+}).refine((data) => !data.confirmPassword || data.password === data.confirmPassword, {
+  message: 'Passwords do not match',
+  path: ['confirmPassword'],
+});
+
 export type VehicleOwnerRegisterInput = z.infer<typeof vehicleOwnerRegisterSchema>;
 export type DriverRegisterInput = z.infer<typeof driverRegisterSchema>;
+export type BuyerRegisterInput = z.infer<typeof buyerRegisterSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;

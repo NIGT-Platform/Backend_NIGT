@@ -135,3 +135,27 @@ export async function repairBrokenProductImages() {
     console.error('⚠️ Could not repair product images:', err.message);
   }
 }
+
+export async function ensureDatabaseSchemaAdditions() {
+  try {
+    // 1. Add BUYER to Role enum if not exists
+    await prisma.$executeRawUnsafe(`ALTER TYPE "Role" ADD VALUE IF NOT EXISTS 'BUYER';`);
+
+    // 2. Create hero_slides table if not exists
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS hero_slides (
+        id TEXT PRIMARY KEY,
+        image_url TEXT NOT NULL,
+        caption TEXT,
+        sub_caption TEXT,
+        "order" INTEGER DEFAULT 0,
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✨ Database schema additions verified (BUYER role, hero_slides).');
+  } catch (err: any) {
+    console.error('⚠️ Could not run schema additions:', err.message);
+  }
+}

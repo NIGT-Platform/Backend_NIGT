@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   registerVehicleOwner,
   registerDriver,
+  registerBuyer,
   login,
   verifyEmail,
   verifyEmailLink,
@@ -18,6 +19,8 @@ const router = Router();
 
 router.post('/register/vehicle-owner', registerVehicleOwner);
 router.post('/register/driver', upload.single('licenseDocument'), registerDriver);
+router.post('/register/buyer', registerBuyer);
+router.post('/register/user', registerBuyer);
 router.post('/login', login);
 router.post('/verify-email', verifyEmail);
 router.get('/verify-email', verifyEmailLink);
