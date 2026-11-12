@@ -290,9 +290,13 @@ export const addToCart = async (
   productId: string,
   quantity: number
 ) => {
+  const qty = Number(quantity) || 1;
+  if (qty < 1) throw new AppError('Quantity must be at least 1', 400);
+
   const product = await prisma.product.findUnique({ where: { id: productId } });
   if (!product) throw new AppError('Product not found', 404);
   if (!product.isActive) throw new AppError('Product is not available', 400);
+  if (product.stockQty <= 0) throw new AppError('Product is out of stock', 400);
 
   const cart = await getOrCreateCart(userId);
 
@@ -301,15 +305,20 @@ export const addToCart = async (
   });
 
   if (existingItem) {
+    const newQuantity = Math.min(existingItem.quantity + qty, product.stockQty);
     return await prisma.cartItem.update({
       where: { id: existingItem.id },
-      data: { quantity: existingItem.quantity + quantity },
+      data: { quantity: newQuantity },
       include: { product: { include: { images: true } } },
     });
   }
 
+  if (qty > product.stockQty) {
+    throw new AppError(`Only ${product.stockQty} available in stock`, 400);
+  }
+
   return await prisma.cartItem.create({
-    data: { cartId: cart.id, productId, quantity },
+    data: { cartId: cart.id, productId, quantity: qty },
     include: { product: { include: { images: true } } },
   });
 };
@@ -322,18 +331,26 @@ export const updateCartItem = async (
   const cart = await prisma.cart.findUnique({ where: { userId } });
   if (!cart) throw new AppError('Cart not found', 404);
 
-  const cartItem = await prisma.cartItem.findUnique({ where: { id: cartItemId } });
+  const cartItem = await prisma.cartItem.findUnique({
+    where: { id: cartItemId },
+    include: { product: true },
+  });
   if (!cartItem) throw new AppError('Cart item not found', 404);
   if (cartItem.cartId !== cart.id) throw new AppError('Cart item does not belong to your cart', 403);
 
-  if (quantity === 0) {
+  const qty = Number(quantity);
+  if (qty <= 0) {
     await prisma.cartItem.delete({ where: { id: cartItemId } });
     return null;
   }
 
+  if (qty > cartItem.product.stockQty) {
+    throw new AppError(`Only ${cartItem.product.stockQty} available in stock`, 400);
+  }
+
   return await prisma.cartItem.update({
     where: { id: cartItemId },
-    data: { quantity },
+    data: { quantity: qty },
     include: { product: { include: { images: true } } },
   });
 };

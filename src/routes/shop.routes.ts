@@ -15,8 +15,12 @@ router.use(authenticate);
 // Cart
 router.get('/cart', shopController.getCart);
 router.post('/cart/items', shopController.addToCart);
+router.post('/cart', shopController.addToCart);
 router.patch('/cart/items/:itemId', shopController.updateCartItem);
+router.patch('/cart/:itemId', shopController.updateCartItem);
+router.put('/cart/:itemId', shopController.updateCartItem);
 router.delete('/cart/items/:itemId', shopController.removeFromCart);
+router.delete('/cart/:itemId', shopController.removeFromCart);
 router.delete('/cart', shopController.clearCart);
 
 // Orders
