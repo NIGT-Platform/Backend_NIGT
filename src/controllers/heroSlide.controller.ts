@@ -55,3 +55,4 @@ export const deleteHeroSlide = async (req: Request, res: Response, next: NextFun
     next(error);
   }
 };
+

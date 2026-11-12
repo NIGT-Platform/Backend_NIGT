@@ -28,4 +28,7 @@ router.delete('/products/images/:imageId', adminShopController.deleteProductImag
 router.get('/orders', adminShopController.listOrders);
 router.patch('/orders/:id/status', adminShopController.updateOrderStatus);
 
+// Cloudinary diagnostics
+router.get('/cloudinary-status', adminShopController.getCloudinaryConfigStatus);
+
 export default router;

@@ -15,3 +15,4 @@ router.post('/admin', authenticate, authorize('ADMIN'), upload.single('image'), 
 router.delete('/admin/:id', authenticate, authorize('ADMIN'), heroController.deleteHeroSlide);
 
 export default router;
+

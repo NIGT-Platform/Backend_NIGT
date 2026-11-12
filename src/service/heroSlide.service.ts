@@ -36,3 +36,4 @@ export const deleteHeroSlide = async (id: string) => {
   if (!slide) throw new AppError('Hero slide not found', 404);
   return await prisma.heroSlide.delete({ where: { id } });
 };
+

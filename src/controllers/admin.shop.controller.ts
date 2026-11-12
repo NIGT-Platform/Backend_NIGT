@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as shopService from '../service/shop.service';
-import { uploadFileToCloudinary } from '../utils/cloudinary.util';
+import { uploadFileToCloudinary, getCloudinaryStatus } from '../utils/cloudinary.util';
 
 type OrderStatus = 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
 
@@ -140,4 +140,8 @@ export const updateOrderStatus = async (req: Request, res: Response, next: NextF
     const order = await shopService.updateOrderStatus(str(req.params.id), status as OrderStatus);
     res.status(200).json({ success: true, message: 'Order status updated successfully', order });
   } catch (error) { next(error); }
+};
+
+export const getCloudinaryConfigStatus = (_req: Request, res: Response): void => {
+  res.status(200).json({ success: true, cloudinary: getCloudinaryStatus() });
 };

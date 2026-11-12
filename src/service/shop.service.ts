@@ -133,10 +133,24 @@ export const addProductImage = async (
   });
   if (!product) throw new AppError('Product not found', 404);
 
-  // If this is the first image or user selected primary, set as primary
-  const shouldBePrimary = isPrimary || product.images.length === 0;
+  // Remove any auto-generated placeholder stock images so the exact uploaded image is displayed
+  const placeholderIds = product.images
+    .filter((img) => img.imageUrl.includes('images.unsplash.com'))
+    .map((img) => img.id);
 
-  if (shouldBePrimary) {
+  if (placeholderIds.length > 0) {
+    await prisma.productImage.deleteMany({
+      where: { id: { in: placeholderIds } },
+    });
+  }
+
+  const remainingImages = product.images.filter((img) => !placeholderIds.includes(img.id));
+
+  // Set as primary if requested, if it's the first real image, or if no real image is primary
+  const hasRealPrimary = remainingImages.some((img) => img.isPrimary);
+  const shouldBePrimary = isPrimary || remainingImages.length === 0 || !hasRealPrimary;
+
+  if (shouldBePrimary && remainingImages.length > 0) {
     await prisma.productImage.updateMany({
       where: { productId },
       data: { isPrimary: false },
